@@ -12,31 +12,21 @@ export default async function handler(req, res) {
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
 
-  const prompt = `Jesteś światowej klasy ekspertem dietetyki i sztuczną inteligencją do wizyjnej analizy żywności. Twoim zadaniem jest oszacowanie kaloryczności i makroskładników absolutnie każdego jedzenia i napoju na zdjęciu z maksymalną możliwą precyzją.
+  const prompt = `Jesteś precyzyjnym dietetykiem. Oszacuj kalorie i makro dla jedzenia na zdjęciu.
 
-ZASADY ANALIZY (STOSUJ DO KAŻDEGO ZDJĘCIA BEZ WYJĄTKU):
-1. DEKONSTRUKCJA: Zidentyfikuj wszystkie widoczne elementy na talerzu/w opakowaniu. 
-2. UKRYTE KALORIE (NAJWAŻNIEJSZE): Zawsze analizuj sposób obróbki termicznej. Jeśli jedzenie błyszczy, jest smażone, ma panierkę, sos lub jest to fast-food/restauracja – ZAWSZE doliczaj dodatkowy tłuszcz (olej, masło) i węglowodany (cukier w sosach). Jedzenie poza domem jest zawsze bardziej kaloryczne.
-3. SZACUNKOWA WAGA: Oceniaj wielkość porcji na podstawie kontekstu (wielkość talerza, sztućców, dłoni, opakowania). Jeśli brakuje punktu odniesienia, zakładaj standardową dużą porcję dla dorosłego człowieka.
-4. PRODUKTY GOTOWE: Jeśli widzisz etykietę, markę, logo sieciówki (np. McDonald's) lub kod kreskowy – bezwzględnie dopasuj wartości do oficjalnych tabel odżywczych tego konkretnego produktu.
-5. REALIZM: Nie zaniżaj kalorii. Lepiej podać wartość o 10% wyższą i bezpieczną, niż sztucznie odchudzić posiłek.
+ZASADY SZACOWANIA – trzymaj się ich ściśle:
+- Domyślnie zakładaj MNIEJSZĄ porcję jeśli nie masz pewności – lepiej niedoszacować niż przeszacować
+- Kanapka z wędliną: 150-200 kcal sztuka
+- Jajko sadzone/gotowane: 70-80 kcal sztuka  
+- Łyżka majonezu: 90 kcal, masła: 70 kcal
+- Talerz zupy (300ml): 100-250 kcal zależnie od rodzaju
+- Porcja ryżu/makaronu na talerzu: 200-250g (nie 400g)
+- Pierś kurczaka standardowa: 150g = 165 kcal
+- NIE dodawaj kalorii których nie widzisz na zdjęciu
+- Jeśli widzisz opakowanie z etykietą – użyj dokładnie tych wartości
 
-ZASADY ZWROTU DANYCH:
-Zwróć TYLKO i WYŁĄCZNIE surowy format JSON. Zero jakiegokolwiek tekstu, powitań, czy znaczników markdown. Zwróć TABLICĘ (Array) obiektów. Jeśli na zdjęciu jest kilka osobnych dań, rozbij je na osobne obiekty. Jeśli to potrawka/mix – zrób z tego jeden obiekt, ale zsumuj wszystko.
-
-Format:
-[
-  {
-    "name": "Szczegółowa nazwa potrawy/produktu po polsku",
-    "portion_g": liczba (tylko liczba, np. 350),
-    "kcal": liczba,
-    "protein": liczba,
-    "carbs": liczba,
-    "fat": liczba,
-    "fiber": liczba,
-    "hidden_factors": "krótko: co doliczono z ukrytych rzeczy (np. olej ze smażenia, gęsty sos majonezowy)"
-  }
-]`;
+Odpowiedz TYLKO samym JSON, zero innych słów:
+{"name":"nazwa po polsku","portion":"szacowana gramatura","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka max 10 słów"}`;
   
   try {
     const response = await fetch(
