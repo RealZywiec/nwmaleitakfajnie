@@ -12,10 +12,28 @@ export default async function handler(req, res) {
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
 
-  const prompt = `Jesteś ekspertem od żywienia. Przeanalizuj zdjęcie i oszacuj wartości odżywcze dla widocznej porcji.
-Odpowiedz TYLKO i WYŁĄCZNIE samym obiektem JSON, zero innych słów, zero markdown, zero backticks:
-{"name":"nazwa po polsku","portion":"np. 350g","kcal":400,"protein":20.5,"carbs":45.0,"fat":12.0,"fiber":3.0,"confidence":"wysoka","tip":"krótka wskazówka po polsku"}`;
+  const prompt = `Jesteś doświadczonym dietetykiem i potrafisz precyzyjnie szacować gramaturę posiłków ze zdjęć.
 
+KROK 1 - ROZPOZNAJ CO WIDZISZ:
+Zidentyfikuj każdy składnik na talerzu/misce osobno.
+
+KROK 2 - OSZACUJ GRAMATURĘ METODYCZNIE:
+- Porównaj rozmiar naczynia do standardowych (talerz obiadowy = 26cm, miseczka = 15cm)
+- Oceń grubość i objętość każdego składnika
+- Użyj punktów odniesienia: garść ryżu = ~150g, pierś kurczaka = 150-200g, ziemniaki średnie = 100g każdy, zupa w miseczce = 300-400ml
+- Zsumuj wszystkie składniki
+
+KROK 3 - OBLICZ MAKRO:
+Na podstawie rzeczywistych wartości odżywczych każdego składnika oblicz łączne makro.
+
+KROK 4 - SPRAWDŹ LOGIKĘ:
+- Zupa 400ml nie może mieć 600 kcal
+- Talerz ryżu z kurczakiem to zazwyczaj 500-700 kcal
+- Jeśli widzisz opakowanie z etykietą - użyj danych z etykiety
+
+Odpowiedz TYLKO samym JSON bez żadnego tekstu przed ani po:
+{"name":"dokładna nazwa po polsku","portion":"X g lub ml (jak to oszacowałeś)","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka po polsku max 12 słów"}`;
+  
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
