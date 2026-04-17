@@ -31,7 +31,7 @@ Odpowiedz TYLKO i WYŁĄCZNIE samym obiektem JSON, zero innych słów, zero mark
           }],
           generationConfig: {
             temperature: 0.1,
-            maxOutputTokens: 512,
+            maxOutputTokens: 1024,
             responseMimeType: 'application/json',
           }
         })
