@@ -12,27 +12,31 @@ export default async function handler(req, res) {
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
 
-  const prompt = `Jesteś doświadczonym dietetykiem i potrafisz precyzyjnie szacować gramaturę posiłków ze zdjęć.
+  const prompt = `Jesteś światowej klasy ekspertem dietetyki i sztuczną inteligencją do wizyjnej analizy żywności. Twoim zadaniem jest oszacowanie kaloryczności i makroskładników absolutnie każdego jedzenia i napoju na zdjęciu z maksymalną możliwą precyzją.
 
-KROK 1 - ROZPOZNAJ CO WIDZISZ:
-Zidentyfikuj każdy składnik na talerzu/misce osobno.
+ZASADY ANALIZY (STOSUJ DO KAŻDEGO ZDJĘCIA BEZ WYJĄTKU):
+1. DEKONSTRUKCJA: Zidentyfikuj wszystkie widoczne elementy na talerzu/w opakowaniu. 
+2. UKRYTE KALORIE (NAJWAŻNIEJSZE): Zawsze analizuj sposób obróbki termicznej. Jeśli jedzenie błyszczy, jest smażone, ma panierkę, sos lub jest to fast-food/restauracja – ZAWSZE doliczaj dodatkowy tłuszcz (olej, masło) i węglowodany (cukier w sosach). Jedzenie poza domem jest zawsze bardziej kaloryczne.
+3. SZACUNKOWA WAGA: Oceniaj wielkość porcji na podstawie kontekstu (wielkość talerza, sztućców, dłoni, opakowania). Jeśli brakuje punktu odniesienia, zakładaj standardową dużą porcję dla dorosłego człowieka.
+4. PRODUKTY GOTOWE: Jeśli widzisz etykietę, markę, logo sieciówki (np. McDonald's) lub kod kreskowy – bezwzględnie dopasuj wartości do oficjalnych tabel odżywczych tego konkretnego produktu.
+5. REALIZM: Nie zaniżaj kalorii. Lepiej podać wartość o 10% wyższą i bezpieczną, niż sztucznie odchudzić posiłek.
 
-KROK 2 - OSZACUJ GRAMATURĘ METODYCZNIE:
-- Porównaj rozmiar naczynia do standardowych (talerz obiadowy = 26cm, miseczka = 15cm)
-- Oceń grubość i objętość każdego składnika
-- Użyj punktów odniesienia: garść ryżu = ~150g, pierś kurczaka = 150-200g, ziemniaki średnie = 100g każdy, zupa w miseczce = 300-400ml
-- Zsumuj wszystkie składniki
+ZASADY ZWROTU DANYCH:
+Zwróć TYLKO i WYŁĄCZNIE surowy format JSON. Zero jakiegokolwiek tekstu, powitań, czy znaczników markdown. Zwróć TABLICĘ (Array) obiektów. Jeśli na zdjęciu jest kilka osobnych dań, rozbij je na osobne obiekty. Jeśli to potrawka/mix – zrób z tego jeden obiekt, ale zsumuj wszystko.
 
-KROK 3 - OBLICZ MAKRO:
-Na podstawie rzeczywistych wartości odżywczych każdego składnika oblicz łączne makro.
-
-KROK 4 - SPRAWDŹ LOGIKĘ:
-- Zupa 400ml nie może mieć 600 kcal
-- Talerz ryżu z kurczakiem to zazwyczaj 500-700 kcal
-- Jeśli widzisz opakowanie z etykietą - użyj danych z etykiety
-
-Odpowiedz TYLKO samym JSON bez żadnego tekstu przed ani po:
-{"name":"dokładna nazwa po polsku","portion":"X g lub ml (jak to oszacowałeś)","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka po polsku max 12 słów"}`;
+Format:
+[
+  {
+    "name": "Szczegółowa nazwa potrawy/produktu po polsku",
+    "portion_g": liczba (tylko liczba, np. 350),
+    "kcal": liczba,
+    "protein": liczba,
+    "carbs": liczba,
+    "fat": liczba,
+    "fiber": liczba,
+    "hidden_factors": "krótko: co doliczono z ukrytych rzeczy (np. olej ze smażenia, gęsty sos majonezowy)"
+  }
+]`;
   
   try {
     const response = await fetch(
