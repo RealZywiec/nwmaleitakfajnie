@@ -14,34 +14,69 @@
       --text: #111110;
       --muted: #888884;
       --accent: #111110;
-      --accent-hover: #2a2a28;
-      --success-bg: #f0fdf4;
-      --success-border: #bbf7d0;
-      --error-bg: #fff0f0;
-      --error-border: #fecaca;
-      --error-text: #dc2626;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --orange: #ea580c;
+      --orange-bg: #fff7ed;
+      --red: #dc2626;
+      --red-bg: #fff0f0;
+      --red-border: #fecaca;
       --warn-bg: #fffbeb;
       --warn-border: #fde68a;
       --warn-text: #92400e;
-      --radius: 12px;
-      --radius-sm: 8px;
+      --blue: #2563eb;
+      --blue-bg: #eff6ff;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       background: var(--bg);
       min-height: 100vh;
-      padding: 1.5rem 1rem 4rem;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
 
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1rem;
+    }
+    .nav-inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 14px 0;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .nav-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--text);
+    }
+
+    /* ── LAYOUT ── */
+    .page { display: none; padding: 1.25rem 1rem 5rem; }
+    .page.active { display: block; }
     .wrap { max-width: 480px; margin: 0 auto; }
 
-    header { margin-bottom: 1.5rem; }
-    header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-    header p { font-size: 14px; color: var(--muted); margin-top: 4px; }
-
+    /* ── UPLOAD ── */
     #upload-area {
       background: var(--surface);
       border: 1.5px dashed var(--border);
@@ -52,7 +87,6 @@
       transition: border-color 0.15s, background 0.15s;
     }
     #upload-area:hover { border-color: #aaa; background: #fafaf9; }
-    #upload-area.dragover { border-color: var(--accent); background: #f5f5f3; }
     .upload-icon { font-size: 40px; margin-bottom: 12px; display: block; }
     #upload-area h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     #upload-area p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
@@ -65,7 +99,7 @@
 
     #preview-area { display: none; }
     #preview-img {
-      width: 100%; max-height: 300px; object-fit: cover;
+      width: 100%; max-height: 280px; object-fit: cover;
       border-radius: var(--radius); border: 1px solid var(--border); display: block;
     }
     .preview-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
@@ -74,7 +108,7 @@
       border: none; border-radius: var(--radius-sm);
       font-size: 15px; font-weight: 600; cursor: pointer;
     }
-    .btn-reset {
+    .btn-ghost {
       padding: 12px; background: var(--surface); color: var(--text);
       border: 1px solid var(--border); border-radius: var(--radius-sm);
       font-size: 15px; font-weight: 500; cursor: pointer;
@@ -91,29 +125,26 @@
     #loading p { font-size: 14px; color: var(--muted); }
     #loading small { font-size: 12px; color: #bbb; display: block; margin-top: 4px; }
 
+    /* ── RESULT ── */
     #result-area { display: none; }
-
     .result-header {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
     }
-    .food-name { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .food-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
     .food-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .food-portion { font-size: 13px; color: var(--muted); }
     .confidence-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
-    .confidence-wysoka { background: var(--success-bg); color: #166534; border: 1px solid var(--success-border); }
+    .confidence-wysoka { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
     .confidence-srednia { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
-    .confidence-niska { background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border); }
+    .confidence-niska { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
 
     .kcal-main {
       background: var(--accent); color: #fff;
       border-radius: var(--radius); padding: 20px;
       text-align: center; margin-bottom: 12px;
     }
-    .kcal-main .label {
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 6px;
-    }
+    .kcal-main .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 6px; }
     .kcal-main .value { font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
     .kcal-main .unit { font-size: 16px; font-weight: 500; opacity: 0.8; margin-top: 4px; }
 
@@ -122,11 +153,8 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius-sm); padding: 12px 8px; text-align: center;
     }
-    .macro-card .m-label {
-      font-size: 10px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
-    }
-    .macro-card .m-value { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
+    .macro-card .m-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+    .macro-card .m-value { font-size: 20px; font-weight: 700; line-height: 1; }
     .macro-card .m-unit { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
     .macro-bar-wrap {
@@ -149,56 +177,151 @@
       line-height: 1.5; margin-bottom: 12px;
     }
 
+    /* Dodaj do dziennika */
+    .add-meal-box {
+      background: var(--green-bg); border: 1px solid var(--green-border);
+      border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+    }
+    .add-meal-box h3 { font-size: 14px; font-weight: 600; color: var(--green); margin-bottom: 12px; }
+    .meal-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .meal-select-btn {
+      padding: 8px 4px; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 12px; font-weight: 500;
+      cursor: pointer; text-align: center; transition: all 0.1s;
+    }
+    .meal-select-btn.selected {
+      background: var(--green); color: #fff; border-color: var(--green);
+    }
+    .btn-add-confirm {
+      width: 100%; padding: 12px; background: var(--green); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+
     #error-area {
-      display: none; background: var(--error-bg); border: 1px solid var(--error-border);
+      display: none; background: var(--red-bg); border: 1px solid var(--red-border);
       border-radius: var(--radius-sm); padding: 14px;
-      color: var(--error-text); font-size: 14px; line-height: 1.5; margin-top: 12px;
+      color: var(--red); font-size: 14px; line-height: 1.5; margin-top: 12px;
     }
 
     .btn-new {
       display: block; width: 100%; padding: 13px;
       background: var(--surface); color: var(--text);
       border: 1px solid var(--border); border-radius: var(--radius-sm);
-      font-size: 15px; font-weight: 500; cursor: pointer;
-      text-align: center; margin-top: 12px;
+      font-size: 15px; font-weight: 500; cursor: pointer; text-align: center;
     }
 
     .disclaimer { font-size: 11px; color: #bbb; text-align: center; margin-top: 16px; line-height: 1.5; }
+
+    /* ── DZIENNIK ── */
+    .diary-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .diary-date { font-size: 16px; font-weight: 700; }
+    .diary-nav { display: flex; gap: 8px; align-items: center; }
+    .diary-nav button {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Podsumowanie dnia */
+    .day-summary {
+      background: var(--accent); color: #fff;
+      border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+    }
+    .day-summary-title { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .day-kcal { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .day-kcal-label { font-size: 13px; opacity: 0.7; margin-bottom: 12px; }
+    .day-macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .day-macro { text-align: center; }
+    .day-macro .dv { font-size: 18px; font-weight: 700; }
+    .day-macro .dl { font-size: 10px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Sekcje posiłków */
+    .meal-section { margin-bottom: 16px; }
+    .meal-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .meal-section-title {
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .meal-section-kcal { font-size: 12px; color: var(--muted); }
+
+    .meal-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px;
+      display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    }
+    .meal-item-info { flex: 1; min-width: 0; }
+    .meal-item-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meal-item-meta { font-size: 12px; color: var(--muted); }
+    .meal-item-kcal { font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .meal-item-delete {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: var(--red-bg); color: var(--red);
+      font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .empty-diary {
+      text-align: center; padding: 3rem 1rem;
+      color: var(--muted); font-size: 14px; line-height: 1.6;
+    }
+    .empty-diary .empty-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: var(--text); color: #fff;
+      padding: 10px 20px; border-radius: 99px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none; white-space: nowrap; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="switchPage('scan')">📷 Skanuj</button>
+    <button class="nav-btn" onclick="switchPage('diary')">📋 Dziennik</button>
+  </div>
+</nav>
+
+<!-- SKANUJ -->
+<div class="page active" id="page-scan">
 <div class="wrap">
 
-  <header>
-    <h1>🍽️ Skaner Kalorii AI</h1>
-    <p>Zrób zdjęcie jedzenia i poznaj wartości odżywcze</p>
-  </header>
+  <div style="padding-top:1rem"></div>
 
-  <div id="upload-area"
-    onclick="document.getElementById('file-input').click()"
-    ondragover="event.preventDefault();this.classList.add('dragover')"
-    ondragleave="this.classList.remove('dragover')"
-    ondrop="handleDrop(event)">
+  <div id="upload-area" onclick="document.getElementById('file-input').click()">
     <span class="upload-icon">📷</span>
     <h2>Wybierz zdjęcie</h2>
     <p>Zrób zdjęcie aparatem, zapisz w galerii,<br>potem wybierz tutaj.</p>
-    <button class="upload-btn" type="button">&#8593; Wybierz z galerii</button>
+    <button class="upload-btn" type="button">↑ Wybierz z galerii</button>
   </div>
 
   <input type="file" id="file-input" accept="image/*" style="display:none">
 
   <div id="preview-area">
-    <img id="preview-img" alt="Podgląd zdjęcia">
+    <img id="preview-img" alt="Podgląd">
     <div class="preview-actions">
       <button class="btn-scan" onclick="scanFood()">Analizuj</button>
-      <button class="btn-reset" onclick="reset()">Inne zdjęcie</button>
+      <button class="btn-ghost" onclick="resetScan()">Inne zdjęcie</button>
     </div>
   </div>
 
   <div id="loading">
     <div class="spinner"></div>
     <p>AI analizuje zdjęcie…</p>
-    <small>Zazwyczaj 3–6 sekund</small>
+    <small>Zazwyczaj 3–8 sekund</small>
   </div>
 
   <div id="result-area">
@@ -255,29 +378,128 @@
 
     <div class="tip-box" id="tip-box"></div>
 
-    <button class="btn-new" onclick="reset()">↩ Skanuj kolejne danie</button>
-    <p class="disclaimer">Wartości są szacunkowe. Skaner nie zastępuje profesjonalnej oceny dietetycznej.</p>
+    <!-- Dodaj do dziennika -->
+    <div class="add-meal-box">
+      <h3>+ Dodaj do dziennika</h3>
+      <div class="meal-select-grid">
+        <button class="meal-select-btn selected" data-meal="sniadanie" onclick="selectMeal(this)">🌅 Śniadanie</button>
+        <button class="meal-select-btn" data-meal="drugie_sniadanie" onclick="selectMeal(this)">🥐 2. śniadanie</button>
+        <button class="meal-select-btn" data-meal="obiad" onclick="selectMeal(this)">🍽️ Obiad</button>
+        <button class="meal-select-btn" data-meal="podwieczorek" onclick="selectMeal(this)">🍎 Podwieczorek</button>
+        <button class="meal-select-btn" data-meal="kolacja" onclick="selectMeal(this)">🌙 Kolacja</button>
+        <button class="meal-select-btn" data-meal="przekaska" onclick="selectMeal(this)">🍿 Przekąska</button>
+      </div>
+      <button class="btn-add-confirm" onclick="addToDiary()">Zapisz posiłek</button>
+    </div>
+
+    <button class="btn-new" onclick="resetScan()">↩ Skanuj kolejne danie</button>
+    <p class="disclaimer">Wartości są szacunkowe. AI nie zastępuje profesjonalnej oceny dietetycznej.</p>
   </div>
 
   <div id="error-area"></div>
 
 </div>
+</div>
+
+<!-- DZIENNIK -->
+<div class="page" id="page-diary">
+<div class="wrap">
+
+  <div style="padding-top:1rem"></div>
+
+  <div class="diary-header">
+    <div class="diary-date" id="diary-date-label"></div>
+    <div class="diary-nav">
+      <button onclick="changeDay(-1)">‹</button>
+      <button onclick="changeDay(1)" id="btn-next-day">›</button>
+    </div>
+  </div>
+
+  <div class="day-summary" id="day-summary">
+    <div class="day-summary-title">Podsumowanie dnia</div>
+    <div class="day-kcal" id="day-kcal">0</div>
+    <div class="day-kcal-label">kcal łącznie</div>
+    <div class="day-macros">
+      <div class="day-macro"><div class="dv" id="day-protein">0</div><div class="dl">Białko g</div></div>
+      <div class="day-macro"><div class="dv" id="day-carbs">0</div><div class="dl">Węgle g</div></div>
+      <div class="day-macro"><div class="dv" id="day-fat">0</div><div class="dl">Tłuszcze g</div></div>
+    </div>
+  </div>
+
+  <div id="diary-content"></div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+  // ── STATE ──────────────────────────────────────────────────────────────────
   let imageBase64 = null;
   let imageMediaType = 'image/jpeg';
+  let currentResult = null;
+  let selectedMeal = 'sniadanie';
+  let diaryDate = todayKey();
 
+  const MEAL_LABELS = {
+    sniadanie: '🌅 Śniadanie',
+    drugie_sniadanie: '🥐 2. śniadanie',
+    obiad: '🍽️ Obiad',
+    podwieczorek: '🍎 Podwieczorek',
+    kolacja: '🌙 Kolacja',
+    przekaska: '🍿 Przekąska',
+  };
+
+  const MEAL_ORDER = ['sniadanie','drugie_sniadanie','obiad','podwieczorek','kolacja','przekaska'];
+
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  function todayKey() {
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function formatDateLabel(key) {
+    const today = todayKey();
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    const yKey = yesterday.toISOString().slice(0,10);
+    if (key === today) return 'Dzisiaj';
+    if (key === yKey) return 'Wczoraj';
+    const d = new Date(key);
+    return d.toLocaleDateString('pl-PL', { weekday:'long', day:'numeric', month:'long' });
+  }
+
+  function getDiary() {
+    try { return JSON.parse(localStorage.getItem('kalorie_diary') || '{}'); }
+    catch { return {}; }
+  }
+
+  function saveDiary(diary) {
+    localStorage.setItem('kalorie_diary', JSON.stringify(diary));
+  }
+
+  function show(id) { document.getElementById(id).style.display = 'block'; }
+  function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ── NAV ───────────────────────────────────────────────────────────────────
+  function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-btn')[page === 'scan' ? 0 : 1].classList.add('active');
+    if (page === 'diary') renderDiary();
+  }
+
+  // ── SCAN ──────────────────────────────────────────────────────────────────
   document.getElementById('file-input').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) loadImage(file);
   });
-
-  function handleDrop(e) {
-    e.preventDefault();
-    document.getElementById('upload-area').classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
-  }
 
   function loadImage(file) {
     imageMediaType = file.type || 'image/jpeg';
@@ -289,27 +511,21 @@
       hide('upload-area');
       hide('result-area');
       hide('error-area');
+      currentResult = null;
     };
     reader.readAsDataURL(file);
   }
 
-  function reset() {
-    imageBase64 = null;
-    imageMediaType = 'image/jpeg';
+  function resetScan() {
+    imageBase64 = null; currentResult = null;
     document.getElementById('file-input').value = '';
     show('upload-area');
-    hide('preview-area');
-    hide('result-area');
-    hide('loading');
-    hide('error-area');
+    hide('preview-area'); hide('result-area'); hide('loading'); hide('error-area');
   }
 
   async function scanFood() {
     if (!imageBase64) return;
-    hide('preview-area');
-    show('loading');
-    hide('error-area');
-    hide('result-area');
+    hide('preview-area'); show('loading'); hide('error-area'); hide('result-area');
 
     try {
       const response = await fetch('/api/analyze', {
@@ -317,16 +533,13 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64, mediaType: imageMediaType }),
       });
-
       const data = await response.json();
-      if (!response.ok || data.error) throw new Error(data.error || 'Nieznany błąd serwera.');
+      if (!response.ok || data.error) throw new Error(data.error || 'Błąd serwera');
+      currentResult = data;
       renderResult(data);
-
-    } catch (err) {
-      hide('loading');
-      show('preview-area');
-      show('error-area');
-      document.getElementById('error-area').textContent = '⚠️ ' + (err.message || 'Coś poszło nie tak. Spróbuj ponownie.');
+    } catch(err) {
+      hide('loading'); show('preview-area'); show('error-area');
+      document.getElementById('error-area').textContent = '⚠️ ' + err.message;
     }
   }
 
@@ -341,32 +554,134 @@
     document.getElementById('fiber-val').textContent = parseFloat(r.fiber || 0).toFixed(1);
     document.getElementById('tip-box').textContent = r.tip || '';
 
-    const conf = (r.confidence || 'niska').toLowerCase().replace('ą','a').replace('ę','e');
+    const conf = (r.confidence || 'niska').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const badge = document.getElementById('confidence-badge');
-    const labels = { wysoka: 'Pewność: wysoka', srednia: 'Pewność: średnia', niska: 'Pewność: niska' };
+    const labels = { wysoka:'Pewność: wysoka', srednia:'Pewność: średnia', niska:'Pewność: niska' };
     badge.textContent = labels[conf] || 'Pewność: niska';
     badge.className = 'confidence-badge confidence-' + conf;
 
-    const pKcal = (r.protein || 0) * 4;
-    const cKcal = (r.carbs || 0) * 4;
-    const fKcal = (r.fat || 0) * 9;
-    const total = pKcal + cKcal + fKcal || 1;
-    const pPct = Math.round(pKcal / total * 100);
-    const cPct = Math.round(cKcal / total * 100);
-    const fPct = 100 - pPct - cPct;
-
-    document.getElementById('bar-p').style.width = pPct + '%';
-    document.getElementById('bar-c').style.width = cPct + '%';
-    document.getElementById('bar-f').style.width = Math.max(0, fPct) + '%';
-    document.getElementById('bar-p-pct').textContent = pPct;
-    document.getElementById('bar-c-pct').textContent = cPct;
-    document.getElementById('bar-f-pct').textContent = Math.max(0, fPct);
+    const pK = (r.protein||0)*4, cK = (r.carbs||0)*4, fK = (r.fat||0)*9;
+    const tot = pK+cK+fK || 1;
+    const pP = Math.round(pK/tot*100), cP = Math.round(cK/tot*100), fP = 100-pP-cP;
+    document.getElementById('bar-p').style.width = pP+'%';
+    document.getElementById('bar-c').style.width = cP+'%';
+    document.getElementById('bar-f').style.width = Math.max(0,fP)+'%';
+    document.getElementById('bar-p-pct').textContent = pP;
+    document.getElementById('bar-c-pct').textContent = cP;
+    document.getElementById('bar-f-pct').textContent = Math.max(0,fP);
 
     show('result-area');
   }
 
-  function show(id) { document.getElementById(id).style.display = 'block'; }
-  function hide(id) { document.getElementById(id).style.display = 'none'; }
+  // ── DIARY ADD ─────────────────────────────────────────────────────────────
+  function selectMeal(btn) {
+    document.querySelectorAll('.meal-select-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMeal = btn.dataset.meal;
+  }
+
+  function addToDiary() {
+    if (!currentResult) return;
+    const diary = getDiary();
+    const key = todayKey();
+    if (!diary[key]) diary[key] = {};
+    if (!diary[key][selectedMeal]) diary[key][selectedMeal] = [];
+    diary[key][selectedMeal].push({
+      id: Date.now(),
+      name: currentResult.name,
+      portion: currentResult.portion || '',
+      kcal: Math.round(currentResult.kcal || 0),
+      protein: parseFloat(currentResult.protein || 0),
+      carbs: parseFloat(currentResult.carbs || 0),
+      fat: parseFloat(currentResult.fat || 0),
+    });
+    saveDiary(diary);
+    showToast('✓ Dodano do dziennika');
+  }
+
+  // ── DIARY RENDER ──────────────────────────────────────────────────────────
+  function changeDay(dir) {
+    const d = new Date(diaryDate);
+    d.setDate(d.getDate() + dir);
+    const newKey = d.toISOString().slice(0,10);
+    if (newKey > todayKey()) return;
+    diaryDate = newKey;
+    renderDiary();
+  }
+
+  function renderDiary() {
+    document.getElementById('diary-date-label').textContent = formatDateLabel(diaryDate);
+    document.getElementById('btn-next-day').disabled = diaryDate >= todayKey();
+
+    const diary = getDiary();
+    const dayData = diary[diaryDate] || {};
+
+    // Podsumowanie
+    let totalKcal = 0, totalP = 0, totalC = 0, totalF = 0;
+    MEAL_ORDER.forEach(m => {
+      (dayData[m] || []).forEach(item => {
+        totalKcal += item.kcal || 0;
+        totalP += item.protein || 0;
+        totalC += item.carbs || 0;
+        totalF += item.fat || 0;
+      });
+    });
+    document.getElementById('day-kcal').textContent = Math.round(totalKcal);
+    document.getElementById('day-protein').textContent = totalP.toFixed(1);
+    document.getElementById('day-carbs').textContent = totalC.toFixed(1);
+    document.getElementById('day-fat').textContent = totalF.toFixed(1);
+
+    // Sekcje
+    const content = document.getElementById('diary-content');
+    const hasMeals = MEAL_ORDER.some(m => (dayData[m] || []).length > 0);
+
+    if (!hasMeals) {
+      content.innerHTML = `<div class="empty-diary"><span class="empty-icon">🍽️</span>Brak posiłków w tym dniu.<br>Zeskanuj jedzenie i dodaj do dziennika.</div>`;
+      return;
+    }
+
+    content.innerHTML = '';
+    MEAL_ORDER.forEach(mealKey => {
+      const items = dayData[mealKey] || [];
+      if (items.length === 0) return;
+
+      const mealKcal = items.reduce((s, i) => s + (i.kcal||0), 0);
+      const section = document.createElement('div');
+      section.className = 'meal-section';
+      section.innerHTML = `
+        <div class="meal-section-header">
+          <span class="meal-section-title">${MEAL_LABELS[mealKey]}</span>
+          <span class="meal-section-kcal">${Math.round(mealKcal)} kcal</span>
+        </div>
+      `;
+      items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'meal-item';
+        el.innerHTML = `
+          <div class="meal-item-info">
+            <div class="meal-item-name">${item.name}</div>
+            <div class="meal-item-meta">${item.portion} · B: ${item.protein.toFixed(1)}g · W: ${item.carbs.toFixed(1)}g · T: ${item.fat.toFixed(1)}g</div>
+          </div>
+          <div class="meal-item-kcal">${item.kcal} kcal</div>
+          <button class="meal-item-delete" onclick="deleteItem('${mealKey}', ${item.id})">✕</button>
+        `;
+        section.appendChild(el);
+      });
+      content.appendChild(section);
+    });
+  }
+
+  function deleteItem(mealKey, id) {
+    const diary = getDiary();
+    if (!diary[diaryDate] || !diary[diaryDate][mealKey]) return;
+    diary[diaryDate][mealKey] = diary[diaryDate][mealKey].filter(i => i.id !== id);
+    saveDiary(diary);
+    renderDiary();
+    showToast('Usunięto');
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  renderDiary();
 </script>
 </body>
 </html>
