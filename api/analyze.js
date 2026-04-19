@@ -12,22 +12,45 @@ export default async function handler(req, res) {
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
 
-  const prompt = `Jesteś precyzyjnym dietetykiem. Oszacuj kalorie i makro dla jedzenia na zdjęciu.
+  const prompt = `Jesteś precyzyjnym dietetykiem z bazą danych wartości odżywczych. Przeanalizuj zdjęcie metodycznie.
 
-ZASADY SZACOWANIA – trzymaj się ich ściśle:
-- Domyślnie zakładaj MNIEJSZĄ porcję jeśli nie masz pewności – lepiej niedoszacować niż przeszacować
-- Kanapka z wędliną: 150-200 kcal sztuka
-- Jajko sadzone/gotowane: 70-80 kcal sztuka  
-- Łyżka majonezu: 90 kcal, masła: 70 kcal
-- Talerz zupy (300ml): 100-250 kcal zależnie od rodzaju
-- Porcja ryżu/makaronu na talerzu: 200-250g (nie 400g)
-- Pierś kurczaka standardowa: 150g = 165 kcal
-- NIE dodawaj kalorii których nie widzisz na zdjęciu
-- Jeśli widzisz opakowanie z etykietą – użyj dokładnie tych wartości
+KROK 1 – WYPISZ KAŻDY SKŁADNIK:
+Zidentyfikuj każdy widoczny produkt osobno z szacowaną gramaturą.
 
-Odpowiedz TYLKO samym JSON, zero innych słów:
-{"name":"nazwa po polsku","portion":"szacowana gramatura","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka max 10 słów"}`;
-  
+KROK 2 – OBLICZ KAŻDY SKŁADNIK Z TEJ BAZY:
+Chleb pszenny: 265 kcal/100g (B:9g W:49g T:3g)
+Chleb razowy: 220 kcal/100g (B:9g W:41g T:3g)
+Masło: 740 kcal/100g (B:1g W:0g T:82g)
+Majonez: 680 kcal/100g (B:1g W:3g T:75g)
+Jajko gotowane/sadzone: 155 kcal/100g, 1 sztuka=60g=93 kcal (B:13g W:1g T:11g)
+Ser żółty: 380 kcal/100g (B:25g W:1g T:31g)
+Szynka/wędlina: 180 kcal/100g (B:18g W:2g T:11g)
+Kurczak pieczony: 195 kcal/100g (B:30g W:0g T:8g)
+Ryż gotowany: 130 kcal/100g (B:3g W:28g T:0g)
+Makaron gotowany: 160 kcal/100g (B:6g W:31g T:1g)
+Ziemniaki gotowane: 87 kcal/100g (B:2g W:20g T:0g)
+Zupa pomidorowa: 45 kcal/100ml
+Zupa rosół: 25 kcal/100ml
+Banan: 89 kcal/100g
+Jabłko: 52 kcal/100g
+Twaróg: 98 kcal/100g (B:12g W:3g T:4g)
+Jogurt naturalny: 59 kcal/100g (B:3g W:5g T:3g)
+Płatki owsiane suche: 370 kcal/100g (B:13g W:62g T:7g)
+Łosoś: 208 kcal/100g (B:20g W:0g T:14g)
+Mięso mielone smażone: 250 kcal/100g (B:22g W:0g T:18g)
+Olej/oliwa: 900 kcal/100g
+Dla innych produktów użyj realnych wartości z bazy USDA.
+
+KROK 3 – ZSUMUJ I SPRAWDŹ LOGIKĘ:
+- 1 kanapka (kromka 30g + masło 5g + wędlina 20g) = ok. 180-220 kcal
+- 4 kanapki = 720-880 kcal
+- Talerz zupy 300ml = 75-150 kcal
+- Porcja ryżu z kurczakiem = 450-600 kcal
+- Jeśli wynik wydaje się za wysoki lub za niski – przelicz ponownie
+
+Odpowiedz TYLKO samym JSON bez żadnego tekstu przed i po:
+{"name":"dokładna nazwa po polsku","portion":"X g lub ml","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka max 10 słów"}`;
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -42,7 +65,7 @@ Odpowiedz TYLKO samym JSON, zero innych słów:
             ]
           }],
           generationConfig: {
-            temperature: 0.1,
+            temperature: 0,
             maxOutputTokens: 10000,
             responseMimeType: 'application/json',
           }
