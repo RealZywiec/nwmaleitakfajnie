@@ -82,17 +82,22 @@ Odpowiedz TYLKO samym JSON bez żadnego tekstu przed i po:
     console.log('RAW:', raw.slice(0, 300));
 
     const cleaned = raw.replace(/```json|```/g, '').trim();
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
 
-    if (!jsonMatch) {
-      return res.status(500).json({ error: 'Zły format odpowiedzi: ' + raw.slice(0, 150) });
-    }
+if (!jsonMatch) {
+  return res.status(500).json({ error: 'Zły format odpowiedzi: ' + raw.slice(0, 150) });
+}
 
-    const result = JSON.parse(jsonMatch[0]);
-    return res.status(200).json(result);
+let result;
+try {
+  result = JSON.parse(jsonMatch[0]);
+} catch(parseErr) {
+  // Próba naprawy – usuń znaki nowej linii wewnątrz wartości
+  const fixed = jsonMatch[0]
+    .replace(/:\s*"([^"]*?)"/gs, (match, val) => ': "' + val.replace(/\n/g, ' ').replace(/\r/g, '') + '"');
+  result = JSON.parse(fixed);
+}
 
-  } catch (err) {
-    console.error('Error:', err);
-    return res.status(500).json({ error: 'Błąd serwera: ' + err.message });
+return res.status(200).json(result);
   }
 }
