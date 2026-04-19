@@ -2,22 +2,22 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+ 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
+ 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Brak klucza API.' });
-
+ 
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
-
+ 
   const prompt = `Jesteś precyzyjnym dietetykiem z bazą danych wartości odżywczych. Przeanalizuj zdjęcie metodycznie.
-
-KROK 1 – WYPISZ KAŻDY SKŁADNIK:
+ 
+KROK 1 - WYPISZ KAŻDY SKŁADNIK:
 Zidentyfikuj każdy widoczny produkt osobno z szacowaną gramaturą.
-
-KROK 2 – OBLICZ KAŻDY SKŁADNIK Z TEJ BAZY:
+ 
+KROK 2 - OBLICZ KAŻDY SKŁADNIK Z TEJ BAZY:
 Chleb pszenny: 265 kcal/100g (B:9g W:49g T:3g)
 Chleb razowy: 220 kcal/100g (B:9g W:41g T:3g)
 Masło: 740 kcal/100g (B:1g W:0g T:82g)
@@ -39,17 +39,18 @@ Płatki owsiane suche: 370 kcal/100g (B:13g W:62g T:7g)
 Łosoś: 208 kcal/100g (B:20g W:0g T:14g)
 Mięso mielone smażone: 250 kcal/100g (B:22g W:0g T:18g)
 Olej/oliwa: 900 kcal/100g
-Dla każdego produktu którego nie ma powyżej: użyj dokładnych wartości z bazy USDA FoodData Central. Jeśli produkt jest nieznany lub trudny do zidentyfikowania, użyj najbliższego odpowiednika z USDA i zaznacz confidence jako "niska".
-KROK 3 – ZSUMUJ I SPRAWDŹ LOGIKĘ:
+Dla każdego produktu którego nie ma powyżej: użyj dokładnych wartości z bazy USDA FoodData Central. Jeśli produkt jest nieznany lub trudny do zidentyfikowania, użyj najbliższego odpowiednika z USDA i zaznacz confidence jako niska.
+ 
+KROK 3 - ZSUMUJ I SPRAWDŹ LOGIKĘ:
 - 1 kanapka (kromka 30g + masło 5g + wędlina 20g) = ok. 180-220 kcal
 - 4 kanapki = 720-880 kcal
 - Talerz zupy 300ml = 75-150 kcal
 - Porcja ryżu z kurczakiem = 450-600 kcal
-- Jeśli wynik wydaje się za wysoki lub za niski – przelicz ponownie
-
-Odpowiedz TYLKO samym JSON bez żadnego tekstu przed i po:
-{"name":"dokładna nazwa po polsku","portion":"X g lub ml","kcal":liczba,"protein":liczba,"carbs":liczba,"fat":liczba,"fiber":liczba,"confidence":"wysoka lub średnia lub niska","tip":"krótka wskazówka max 10 słów"}`;
-
+- Jeśli wynik wydaje się za wysoki lub za niski - przelicz ponownie
+ 
+WAŻNE: Odpowiedz WYŁĄCZNIE jedną linią JSON bez żadnych spacji, enterów ani tekstu przed lub po. Wszystkie wartości tekstowe w jednej linii:
+{"name":"nazwa po polsku","portion":"X g","kcal":0,"protein":0.0,"carbs":0.0,"fat":0.0,"fiber":0.0,"confidence":"wysoka","tip":"krotka wskazowka"}`;
+ 
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -65,39 +66,68 @@ Odpowiedz TYLKO samym JSON bez żadnego tekstu przed i po:
           }],
           generationConfig: {
             temperature: 0,
-            maxOutputTokens: 10000,
+            maxOutputTokens: 1024,
             responseMimeType: 'application/json',
           }
         })
       }
     );
-
+ 
     const data = await response.json();
-
+ 
     if (!response.ok) {
       return res.status(response.status).json({ error: data?.error?.message || 'Błąd Gemini API' });
     }
-
+ 
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('RAW:', raw.slice(0, 300));
-
-    const cleaned = raw.replace(/```json|```/g, '').trim();
-const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-
-if (!jsonMatch) {
-  return res.status(500).json({ error: 'Zły format odpowiedzi: ' + raw.slice(0, 150) });
-}
-
-let result;
-try {
-  result = JSON.parse(jsonMatch[0]);
-} catch(parseErr) {
-  // Próba naprawy – usuń znaki nowej linii wewnątrz wartości
-  const fixed = jsonMatch[0]
-    .replace(/:\s*"([^"]*?)"/gs, (match, val) => ': "' + val.replace(/\n/g, ' ').replace(/\r/g, '') + '"');
-  result = JSON.parse(fixed);
-}
-
-return res.status(200).json(result);
+    console.log('RAW:', raw.slice(0, 400));
+ 
+    // Wyciągnij JSON – szukaj { ... } i weź tylko pierwszą parę nawiasów
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+ 
+    if (start === -1 || end === -1) {
+      return res.status(500).json({ error: 'Brak JSON w odpowiedzi: ' + raw.slice(0, 200) });
+    }
+ 
+    let jsonStr = raw.slice(start, end + 1);
+ 
+    // Usuń znaki kontrolne które psują parsowanie
+    jsonStr = jsonStr
+      .replace(/[\u0000-\u001F\u007F]/g, ' ') // wszystkie znaki kontrolne -> spacja
+      .replace(/\n/g, ' ')
+      .replace(/\r/g, '')
+      .replace(/\t/g, ' ')
+      .replace(/\s+/g, ' ');
+ 
+    let result;
+    try {
+      result = JSON.parse(jsonStr);
+    } catch (e) {
+      // Ostatnia deska ratunku – wyciągnij wartości regexem
+      console.error('Parse failed, trying regex extraction. JSON:', jsonStr.slice(0, 300));
+      const get = (key) => {
+        const m = jsonStr.match(new RegExp(`"${key}"\\s*:\\s*"?([^",}]+)"?`));
+        return m ? m[1].trim() : null;
+      };
+      result = {
+        name: get('name') || 'Nierozpoznane',
+        portion: get('portion') || '–',
+        kcal: parseFloat(get('kcal')) || 0,
+        protein: parseFloat(get('protein')) || 0,
+        carbs: parseFloat(get('carbs')) || 0,
+        fat: parseFloat(get('fat')) || 0,
+        fiber: parseFloat(get('fiber')) || 0,
+        confidence: get('confidence') || 'niska',
+        tip: get('tip') || '',
+      };
+    }
+ 
+    return res.status(200).json(result);
+ 
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Błąd serwera: ' + err.message });
   }
 }
+ 
