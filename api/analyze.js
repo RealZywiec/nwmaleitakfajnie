@@ -66,7 +66,7 @@ WAŻNE: Odpowiedz WYŁĄCZNIE jedną linią JSON bez żadnych spacji, enterów a
           }],
           generationConfig: {
             temperature: 0,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 10000,
             responseMimeType: 'application/json',
           }
         })
