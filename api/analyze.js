@@ -39,8 +39,7 @@ Płatki owsiane suche: 370 kcal/100g (B:13g W:62g T:7g)
 Łosoś: 208 kcal/100g (B:20g W:0g T:14g)
 Mięso mielone smażone: 250 kcal/100g (B:22g W:0g T:18g)
 Olej/oliwa: 900 kcal/100g
-Dla innych produktów użyj realnych wartości z bazy USDA.
-
+Dla każdego produktu którego nie ma powyżej: użyj dokładnych wartości z bazy USDA FoodData Central. Jeśli produkt jest nieznany lub trudny do zidentyfikowania, użyj najbliższego odpowiednika z USDA i zaznacz confidence jako "niska".
 KROK 3 – ZSUMUJ I SPRAWDŹ LOGIKĘ:
 - 1 kanapka (kromka 30g + masło 5g + wędlina 20g) = ok. 180-220 kcal
 - 4 kanapki = 720-880 kcal
