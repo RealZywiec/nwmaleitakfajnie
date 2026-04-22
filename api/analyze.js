@@ -12,31 +12,24 @@ export default async function handler(req, res) {
   const { imageBase64, mediaType } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'Brak zdjęcia.' });
  
-  const prompt = `Jesteś precyzyjnym dietetykiem analizującym zdjęcie jedzenia.
+  const prompt = `Jesteś doświadczonym dietetykiem klinicznym. Przeanalizuj dokładnie to zdjęcie jedzenia.
 
-ZASADA: Zawsze rozbijaj posiłek na pojedyncze składniki. Nigdy nie licz całego dania jako jednej pozycji.
+INSTRUKCJA:
+1. Zidentyfikuj każdy składnik osobno który widzisz na zdjęciu
+2. Dla każdego składnika oceń gramaturę na podstawie tego co widzisz - rozmiar, grubość, ilość
+3. Dla każdego składnika oblicz kalorie i makro używając swojej wiedzy o wartościach odżywczych
+4. Zsumuj wszystkie składniki
+5. Sprawdź czy wynik jest realistyczny dla tej porcji
 
-PROCES:
-1. Zidentyfikuj każdy składnik widoczny na zdjęciu
-2. Oceń gramaturę każdego składnika na podstawie tego co WIDZISZ na zdjęciu (rozmiar porcji, grubość, ilość)
-3. Dla każdego składnika użyj wartości z tej bazy (kcal na 100g):
-   Chleb pszenny: 265 | Chleb razowy: 220 | Masło: 740 | Majonez: 680
-   Jajko całe: 155 | Ser żółty: 380 | Szynka/wędlina: 180 | Parówka: 290
-   Kurczak pieczony: 195 | Kurczak smażony: 240 | Mięso mielone smażone: 250
-   Ryż gotowany: 130 | Makaron gotowany: 160 | Ziemniaki gotowane: 87
-   Frytki: 312 | Śmietana 18%: 185 | Mleko 3.2%: 61 | Jajecznica: 180
-   Bulion/rosół: 25 | Twaróg: 98 | Jogurt naturalny: 59 | Płatki owsiane: 370
-   Łosoś: 208 | Tuńczyk z puszki: 116 | Boczek smażony: 540
-   Banan: 89 | Jabłko: 52 | Olej/oliwa: 900 | Ketchup: 100 | Musztarda: 70
-   Marchew: 41 | Pomidor: 18 | Ogórek: 15 | Papryka: 31 | Cebula: 40
-   Dla produktów spoza listy: użyj wartości z bazy USDA FoodData Central
-4. Oblicz: gramatura_składnika × (kcal_na_100g / 100) dla każdego składnika
-5. Zsumuj kalorie i makro wszystkich składników
-6. Sprawdź logikę: jeśli wynik wydaje się za wysoki lub za niski względem tego co widzisz – przelicz ponownie
+WAŻNE:
+- Zawsze rozkładaj na składniki, nigdy nie szacuj całego dania na raz
+- Gramaturę oceniaj wyłącznie na podstawie zdjęcia, nie zakładaj z góry
+- Używaj swojej pełnej wiedzy żywieniowej, nie upraszczaj
+- Jeśli coś jest trudne do rozpoznania - zaznacz confidence jako niska
 
-Odpowiedz WYŁĄCZNIE jedną linią JSON bez żadnego tekstu przed ani po:
+Odpowiedz WYŁĄCZNIE jedną linią JSON:
 {"name":"nazwa po polsku","portion":"X g","kcal":0,"protein":0.0,"carbs":0.0,"fat":0.0,"fiber":0.0,"confidence":"wysoka lub srednia lub niska","tip":"krotka wskazowka"}`;
-  
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
